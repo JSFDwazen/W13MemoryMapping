@@ -9,11 +9,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -83,6 +85,7 @@ public class W13MemoryMapping implements Observer {
             mappedBB.putDouble(edge.Y1);
             mappedBB.putDouble(edge.X2);
             mappedBB.putDouble(edge.Y2);
+            System.out.println(Arrays.toString(edge.color.getBytes()));
             mappedBB.put(edge.color.getBytes());
             mappedBB.putInt(edge.level);
             counter++;
@@ -96,9 +99,19 @@ public class W13MemoryMapping implements Observer {
         FileChannel inChannel = aFile.getChannel();
         MappedByteBuffer buffer = inChannel.map(FileChannel.MapMode.READ_ONLY, 0, inChannel.size());
         buffer.load();
-        String chars = "";
         for (int i = 0; i < (int) (3 * Math.pow(4, level - 1)); i++) {
-            Edge edge = new Edge(buffer.getDouble(), buffer.getDouble(), buffer.getDouble(), buffer.getDouble(), "0x0000ffff", level);
+            double X1 = buffer.getDouble();
+            double Y1 = buffer.getDouble();
+            double X2 = buffer.getDouble();
+            double Y2 = buffer.getDouble();
+            byte[] bytes = new byte[10];
+            for (int j = 0; j < 10; j++) {
+                bytes = buffer.get();
+            }
+            String color = new String(buffer.get(bytes).array(), Charset.forName("UTF-8"));
+            int level = buffer.getInt();
+
+            Edge edge = new Edge(X1, Y1, X2, Y2, color, level);
             edges.add(edge);
         }
         System.out.println("" + edges.size());
@@ -109,6 +122,7 @@ public class W13MemoryMapping implements Observer {
             System.out.println(edge.X2);
             System.out.println(edge.Y2);
             System.out.println(edge.color);
+            System.out.println(edge.level);
         }
         buffer.clear(); // do something with the data and clear/compact it.
         inChannel.close();
