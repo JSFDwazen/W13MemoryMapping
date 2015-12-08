@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Scanner;
+import javafx.scene.paint.Color;
 
 /**
  *
@@ -85,8 +86,11 @@ public class W13MemoryMapping implements Observer {
             mappedBB.putDouble(edge.Y1);
             mappedBB.putDouble(edge.X2);
             mappedBB.putDouble(edge.Y2);
-            System.out.println(Arrays.toString(edge.color.getBytes()));
-            mappedBB.put(edge.color.getBytes());
+            mappedBB.putDouble(Color.valueOf(edge.color).getRed());
+            mappedBB.putDouble(Color.valueOf(edge.color).getGreen());
+            mappedBB.putDouble(Color.valueOf(edge.color).getBlue());
+            //System.out.println(Arrays.toString(edge.color.getBytes()));
+            //mappedBB.put(edge.color.getBytes());
             mappedBB.putInt(edge.level);
             counter++;
         }
@@ -104,11 +108,9 @@ public class W13MemoryMapping implements Observer {
             double Y1 = buffer.getDouble();
             double X2 = buffer.getDouble();
             double Y2 = buffer.getDouble();
-            byte[] bytes = new byte[10];
-            for (int j = 0; j < 10; j++) {
-                bytes = buffer.get();
-            }
-            String color = new String(buffer.get(bytes).array(), Charset.forName("UTF-8"));
+            String color = new Color(buffer.getDouble(), buffer.getDouble(), buffer.getDouble(), 1).toString();
+            //byte[] bytes = buffer.get
+            //String color = new String(buffer.get(bytes).array(), Charset.forName("UTF-8"));
             int level = buffer.getInt();
 
             Edge edge = new Edge(X1, Y1, X2, Y2, color, level);
